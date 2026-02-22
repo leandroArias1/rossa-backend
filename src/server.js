@@ -13,9 +13,10 @@ const app = express();
 app.use(helmet());
 app.use(cors({
     origin: [
-        process.env.FRONTEND_URL || 'https://rossa-repuestos.vercel.app/login',   // admin panel
-        'https://rossa-repuestos-cs6z.vercel.app/',                                 // storefront
-        'http://localhost:3000',
+        'https://storefront-inicial.vercel.app',
+        'https://admin-inicial.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:5174',
     ],
     credentials: true,
 }));
@@ -39,7 +40,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`\n╔═════════════════════════════════════╗\n║  🚚 Rossa Repuestos API v2          ║\n║  http://localhost:${PORT}/api         ║\n╚═════════════════════════════════════╝\n`);
+    console.log(`🚚 Rossa Repuestos API corriendo en puerto ${PORT}`);
 });
 
 module.exports = app;
