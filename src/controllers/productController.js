@@ -9,6 +9,7 @@ exports.getProducts = async (req, res) => {
         else if (active !== undefined) query.active = active === 'true';
         if (category) query.category = category;
         if (featured) query.featured = featured === 'true';
+        if (req.query.compatible) query.compatible = { $in: [new RegExp(req.query.compatible, "i")] };
         if (search) query.$or = [
             { name: { $regex: search, $options: 'i' } },
             { partNumber: { $regex: search, $options: 'i' } },
