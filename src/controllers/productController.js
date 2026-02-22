@@ -57,11 +57,11 @@ exports.updateProduct = async (req, res) => {
 
     const { name, description, price, stock, category, brand, partNumber, compatible, featured, active, keepImages } = req.body;
 
-    if (name) product.name = name;
+    if (name !== undefined) product.name = name;
     if (description !== undefined) product.description = description;
-    if (price) product.price = price;
+    if (price !== undefined) product.price = price;
     if (stock !== undefined) product.stock = stock;
-    if (category) product.category = category;
+    if (category !== undefined) product.category = category;
     if (brand !== undefined) product.brand = brand;
     if (partNumber !== undefined) product.partNumber = partNumber;
     if (featured !== undefined) product.featured = featured === 'true' || featured === true;
@@ -72,23 +72,26 @@ exports.updateProduct = async (req, res) => {
         : [];
     }
 
-    // Manejar imágenes: conservar las que vienen en keepImages + agregar nuevas
-    if (keepImages !== undefined || (req.files && req.files.length > 0)) {
-      let keptImages = [];
-      try { keptImages = JSON.parse(keepImages || '[]'); } catch { keptImages = []; }
-
-      // Eliminar de Cloudinary las que no se conservan
-      const keptUrls = keptImages.map(i => i.url);
-      for (const img of product.images) {
-        if (!keptUrls.includes(img.url) && img.filename) {
-          try { await cloudinary.uploader.destroy(img.filename); } catch (_) {}
-        }
-      }
-
-      // Nuevas imágenes subidas
-      const newImages = req.files ? req.files.map(f => ({ url: f.path, filename: f.filename })) : [];
-      product.images = [...keptImages, ...newImages];
+    // Manejar imágenes
+    let keptImages = [];
+    if (keepImages) {
+      try {
+        const parsed = JSON.parse(keepImages);
+        keptImages = Array.isArray(parsed) ? parsed : [];
+      } catch { keptImages = []; }
+    } else {
+      keptImages = product.images; // conservar todas si no se manda keepImages
     }
+
+    const keptUrls = keptImages.map(i => i.url);
+    for (const img of product.images) {
+      if (!keptUrls.includes(img.url) && img.filename) {
+        try { await cloudinary.uploader.destroy(img.filename); } catch (_) {}
+      }
+    }
+
+    const newImages = req.files ? req.files.map(f => ({ url: f.path, filename: f.filename })) : [];
+    product.images = [...keptImages, ...newImages];
 
     await product.save();
     await product.populate('category', 'name slug');
