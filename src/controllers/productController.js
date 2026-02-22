@@ -74,6 +74,7 @@ exports.updateProduct = async (req, res) => {
 
     // Manejar imágenes
     let keptImages = [];
+    console.log('content-type:', req.headers['content-type']);
     console.log('keepImages recibido:', keepImages);
     console.log('files recibidos:', req.files?.length || 0);
     if (keepImages) {
